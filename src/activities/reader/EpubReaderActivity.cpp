@@ -14,6 +14,7 @@
 namespace {
 constexpr int pagesPerRefresh = 15;
 constexpr unsigned long skipChapterMs = 700;
+constexpr unsigned long showContextMenuMs = 700;
 constexpr float lineCompression = 0.95f;
 constexpr int marginTop = 8;
 constexpr int marginRight = 10;
@@ -85,6 +86,9 @@ void EpubReaderActivity::loop() {
     return;
   }
 
+  /*
+   * Confirm Button/Chapter Selection Activity
+   */
   // Enter chapter selection activity
   if (inputManager.wasPressed(InputManager::BTN_CONFIRM)) {
     // Don't start activity transition while rendering
@@ -108,11 +112,27 @@ void EpubReaderActivity::loop() {
     xSemaphoreGive(renderingMutex);
   }
 
-  if (inputManager.wasPressed(InputManager::BTN_BACK)) {
+  // if (inputManager.wasPressed(InputManager::BTN_BACK)) {
+  //   onGoBack();
+  //   return;
+  // }
+
+  /*
+   * Context Menu
+   */
+  const bool backReleased = inputManager.wasReleased(InputManager::BTN_BACK);
+  const bool showContextMenu = inputManager.getHeldTime() > showContextMenuMs;
+  if (backReleased) {
+    if (showContextMenu) {
+      // show menu
+    }
     onGoBack();
     return;
   }
 
+  /*
+   * Page/Chapter Navigation
+   */
   const bool prevReleased =
       inputManager.wasReleased(InputManager::BTN_UP) || inputManager.wasReleased(InputManager::BTN_LEFT);
   const bool nextReleased =
